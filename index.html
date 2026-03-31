@@ -119,24 +119,14 @@ select option{background:var(--surf)}
 /* SAT visual */
 .sat-spectrum{background:rgba(0,0,0,.2);border:1px solid var(--b1);border-radius:var(--r);padding:14px;margin-bottom:12px;overflow-x:auto}
 
-/* ══════════ CHAT ══════════ */
-.qwrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px}
-.qbtn{background:transparent;border:1px solid rgba(136,32,48,.38);color:var(--gold);padding:4px 11px;cursor:pointer;font-family:'Source Serif 4',serif;font-size:.81rem;border-radius:2px;transition:all .18s}
-.qbtn:hover{background:rgba(136,32,48,.18)}
-.cbox{height:340px;overflow-y:auto;padding:13px;margin-bottom:11px;background:rgba(0,0,0,.2);border:1px solid var(--b1);border-radius:var(--r);scroll-behavior:smooth}
-.cbox::-webkit-scrollbar{width:3px}
-.cbox::-webkit-scrollbar-thumb{background:rgba(192,144,64,.18);border-radius:2px}
-.msg{display:flex;gap:9px;margin-bottom:13px;animation:fu .24s ease}
-.av{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:2px}
-.msg.u .av{background:var(--wine)}
-.msg.a .av{background:var(--gold);color:var(--bg)}
-.bbl{background:rgba(255,255,255,.04);border:1px solid var(--b1);padding:9px 13px;border-radius:var(--r);font-size:.9rem;line-height:1.74;flex:1;color:var(--cream)}
-.msg.u .bbl{background:rgba(136,32,48,.1);border-color:rgba(136,32,48,.2)}
-.crow{display:flex;gap:7px}
-.dots span{width:4px;height:4px;border-radius:50%;background:var(--wine2);animation:bop 1.1s infinite;display:inline-block}
-.dots span:nth-child(2){animation-delay:.18s}
-.dots span:nth-child(3){animation-delay:.36s}
-@keyframes bop{0%,80%,100%{transform:translateY(0);opacity:.3}40%{transform:translateY(-5px);opacity:1}}
+/* ══════════ MAP ══════════ */
+.map-chip{background:transparent;border:1px solid var(--b1);color:var(--mist);padding:5px 13px;cursor:pointer;font-family:'Source Serif 4',serif;font-size:.82rem;border-radius:var(--r);transition:all .18s}
+.map-chip:hover{border-color:var(--b2);color:var(--gold2)}
+.map-chip.on{background:rgba(192,144,64,.14);border-color:var(--gold);color:var(--gold2)}
+.rpin{transition:opacity .2s}
+.rpin.hidden{opacity:.15;pointer-events:none}
+.rpin circle:first-child{transition:r .15s}
+.rpin:hover circle:first-child{r:10}
 
 /* ══════════ FLASHCARD ══════════ */
 .fch{display:flex;gap:9px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
@@ -195,12 +185,7 @@ select option{background:var(--surf)}
 </head>
 <body>
 <div class="app">
-<!-- API Key 状态提示（配置好 key 后自动消失） -->
-<div id="api-banner" style="display:none;background:rgba(136,32,48,.18);border:1px solid rgba(136,32,48,.5);border-radius:3px;padding:12px 16px;margin:16px 0;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#d09090;line-height:1.7">
-  ⚠️ <strong>AI 功能未配置</strong>：AI导师 和 盲品推断 需要 Anthropic API Key。<br>
-  请打开文件顶部 <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:2px">CONFIG.API_KEY</code>，将 <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:2px">'YOUR_API_KEY_HERE'</code> 替换为你的 Key。<br>
-  获取地址：<a href="https://console.anthropic.com" target="_blank" style="color:var(--gold)">console.anthropic.com</a>　·　闪卡 / 模拟题 / 地图等功能不受影响，可正常使用。
-</div>
+
 <header>
   <div class="eyebrow">WSET Level 3 · Wine Study Companion</div>
   <h1>Vino<em>Study</em></h1>
@@ -210,7 +195,7 @@ select option{background:var(--surf)}
 
 <nav>
   <button class="nb on" onclick="tab('learn',this)">📖 系统学习</button>
-  <button class="nb"    onclick="tab('chat',this)">🍷 AI导师</button>
+  <button class="nb"    onclick="tab('map',this)">🗺️ 产区地图</button>
   <button class="nb"    onclick="tab('flash',this)">📚 闪卡</button>
   <button class="nb"    onclick="tab('quiz',this)">✏️ 模拟题</button>
   <button class="nb"    onclick="tab('blind',this)">🫙 盲品推断</button>
@@ -272,23 +257,175 @@ select option{background:var(--surf)}
   </div>
 </div>
 
-<!-- ════════════════ CHAT ════════════════ -->
-<div id="p-chat" class="panel glass">
-  <div class="ptitle">AI 葡萄酒导师</div>
-  <div class="pdesc">以WSET考官视角解答 · 中英双语术语</div>
-  <div class="qwrap">
-    <button class="qbtn" onclick="ask('新世界和旧世界葡萄酒在风格、酒标和法规上有哪些核心差异？')">新/旧世界对比</button>
-    <button class="qbtn" onclick="ask('完整解析SAT品鉴系统框架，包括外观、香气、口感和质量评估各维度')">SAT框架</button>
-    <button class="qbtn" onclick="ask('勃艮第Grand Cru和Premier Cru分级逻辑，与波尔多分级有何本质区别？')">勃艮第vs波尔多分级</button>
-    <button class="qbtn" onclick="ask('Champagne传统法完整步骤，NV和Vintage陈年要求区别？')">Champagne传统法</button>
-    <button class="qbtn" onclick="ask('请出5道WSET 3考试风格的模拟题，涵盖品种产区工艺，并给出答案和解析')">出5道模拟题</button>
+<!-- ════════════════ MAP ════════════════ -->
+<div id="p-map" class="panel glass">
+  <div class="ptitle">产区地图 Wine Region Map</div>
+  <div class="pdesc">14个WSET 3核心产区 · 点击标记查看考点 · 对应品种与风格</div>
+
+  <!-- region filter chips -->
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="map-filters">
+    <button class="map-chip on" onclick="filterMap('all',this)">全部</button>
+    <button class="map-chip" onclick="filterMap('france',this)">🇫🇷 法国</button>
+    <button class="map-chip" onclick="filterMap('europe',this)">🇮🇹🇩🇪🇪🇸🇵🇹 欧洲其他</button>
+    <button class="map-chip" onclick="filterMap('newworld',this)">🌏 新世界</button>
   </div>
-  <div class="cbox" id="cbox">
-    <div class="msg a"><div class="av">🍷</div><div class="bbl">你好！我是WSET 3专属备考导师。可以问任何关于产区、品种、酿造工艺、SAT品鉴的问题，以考官标准解答。<br><br><em>点击上方快捷按钮，或直接输入问题。</em></div></div>
+
+  <!-- map iframe via google maps embed -->
+  <div id="map-container" style="border-radius:var(--r);overflow:hidden;border:1px solid var(--b2);margin-bottom:20px">
+    <iframe id="gmap" 
+      src="https://www.google.com/maps/d/embed?mid=1BNt5JZ3Q3Q3Q3Q3Q3Q3Q3Q3Q3Q3Q3Q0&ehbc=2E312F"
+      style="display:none"></iframe>
+    <!-- fallback: custom SVG world map with clickable dots -->
+    <div id="map-svg-wrap" style="position:relative;background:rgba(0,0,0,.25);padding:8px;min-height:360px">
+      <svg id="world-map" viewBox="0 0 900 460" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">
+        <!-- simplified continent outlines -->
+        <!-- Europe -->
+        <path d="M390,80 L430,70 L460,75 L470,90 L460,105 L440,110 L420,105 L400,100 L390,90 Z" fill="rgba(175,125,70,.12)" stroke="rgba(175,125,70,.3)" stroke-width="1"/>
+        <!-- more Europe detail -->
+        <path d="M395,90 L420,85 L445,88 L455,100 L450,115 L435,125 L415,120 L400,110 Z" fill="rgba(175,125,70,.1)" stroke="rgba(175,125,70,.2)" stroke-width="0.5"/>
+        <!-- Iberia -->
+        <path d="M380,100 L400,95 L405,110 L400,125 L385,125 L375,115 Z" fill="rgba(175,125,70,.12)" stroke="rgba(175,125,70,.3)" stroke-width="1"/>
+        <!-- Italy boot -->
+        <path d="M435,105 L445,100 L450,115 L448,135 L440,145 L432,140 L430,125 L432,112 Z" fill="rgba(175,125,70,.12)" stroke="rgba(175,125,70,.3)" stroke-width="1"/>
+        <!-- North Africa -->
+        <path d="M370,140 L500,135 L510,175 L370,180 Z" fill="rgba(100,80,50,.08)" stroke="rgba(100,80,50,.15)" stroke-width="0.5"/>
+        <!-- Germany/Rhine -->
+        <path d="M430,80 L455,75 L460,90 L450,95 L430,90 Z" fill="rgba(175,125,70,.1)" stroke="rgba(175,125,70,.2)" stroke-width="0.5"/>
+        <!-- Portugal -->
+        <path d="M375,100 L385,98 L387,112 L382,120 L375,116 Z" fill="rgba(175,125,70,.15)" stroke="rgba(175,125,70,.35)" stroke-width="1"/>
+
+        <!-- Americas outline -->
+        <path d="M160,60 L200,55 L210,80 L215,120 L205,160 L185,200 L175,240 L170,200 L155,160 L148,120 L150,80 Z" fill="rgba(175,125,70,.08)" stroke="rgba(175,125,70,.2)" stroke-width="0.5"/>
+        <!-- South America -->
+        <path d="M185,200 L220,195 L230,230 L225,280 L210,310 L195,300 L185,270 L182,230 Z" fill="rgba(175,125,70,.08)" stroke="rgba(175,125,70,.2)" stroke-width="0.5"/>
+
+        <!-- Australia -->
+        <path d="M680,260 L740,255 L755,285 L745,315 L710,325 L685,305 L675,280 Z" fill="rgba(175,125,70,.1)" stroke="rgba(175,125,70,.25)" stroke-width="0.8"/>
+        <!-- New Zealand -->
+        <path d="M760,295 L768,290 L772,308 L765,320 L758,315 Z" fill="rgba(175,125,70,.1)" stroke="rgba(175,125,70,.25)" stroke-width="0.8"/>
+
+        <!-- grid lines -->
+        <line x1="0" y1="230" x2="900" y2="230" stroke="rgba(175,125,70,.08)" stroke-width="0.5" stroke-dasharray="4,4"/>
+        <line x1="450" y1="0" x2="450" y2="460" stroke="rgba(175,125,70,.08)" stroke-width="0.5" stroke-dasharray="4,4"/>
+        <text x="452" y="228" fill="rgba(175,125,70,.2)" font-size="8" font-family="JetBrains Mono,monospace">EQUATOR</text>
+
+        <!-- ── REGION DOTS ── -->
+        <!-- Bordeaux -->
+        <g class="rpin" data-region="bordeaux" data-group="france" onclick="showMapCard('bordeaux')" style="cursor:pointer">
+          <circle cx="388" cy="108" r="8" fill="rgba(136,32,48,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="388" cy="108" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="398" y="105" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Bordeaux</text>
+        </g>
+        <!-- Burgundy -->
+        <g class="rpin" data-region="burgundy" data-group="france" onclick="showMapCard('burgundy')" style="cursor:pointer">
+          <circle cx="425" cy="100" r="8" fill="rgba(136,32,48,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="425" cy="100" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="435" y="97" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Burgundy</text>
+        </g>
+        <!-- Champagne -->
+        <g class="rpin" data-region="champagne" data-group="france" onclick="showMapCard('champagne')" style="cursor:pointer">
+          <circle cx="422" cy="88" r="8" fill="rgba(136,32,48,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="422" cy="88" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="432" y="85" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Champagne</text>
+        </g>
+        <!-- Rhône -->
+        <g class="rpin" data-region="rhone" data-group="france" onclick="showMapCard('rhone')" style="cursor:pointer">
+          <circle cx="427" cy="110" r="8" fill="rgba(136,32,48,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="427" cy="110" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="437" y="107" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Rhône</text>
+        </g>
+        <!-- Alsace -->
+        <g class="rpin" data-region="alsace" data-group="france" onclick="showMapCard('alsace')" style="cursor:pointer">
+          <circle cx="438" cy="93" r="8" fill="rgba(136,32,48,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="438" cy="93" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="448" y="90" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Alsace</text>
+        </g>
+        <!-- Mosel -->
+        <g class="rpin" data-region="mosel" data-group="europe" onclick="showMapCard('mosel')" style="cursor:pointer">
+          <circle cx="438" cy="82" r="8" fill="rgba(50,80,136,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="438" cy="82" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="448" y="79" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Mosel 🇩🇪</text>
+        </g>
+        <!-- Tuscany -->
+        <g class="rpin" data-region="tuscany" data-group="europe" onclick="showMapCard('tuscany')" style="cursor:pointer">
+          <circle cx="440" cy="112" r="8" fill="rgba(80,50,136,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="440" cy="112" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="450" y="109" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Tuscany 🇮🇹</text>
+        </g>
+        <!-- Piedmont -->
+        <g class="rpin" data-region="piedmont" data-group="europe" onclick="showMapCard('piedmont')" style="cursor:pointer">
+          <circle cx="432" cy="103" r="8" fill="rgba(80,50,136,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="432" cy="103" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="442" y="100" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Piedmont 🇮🇹</text>
+        </g>
+        <!-- Rioja -->
+        <g class="rpin" data-region="rioja" data-group="europe" onclick="showMapCard('rioja')" style="cursor:pointer">
+          <circle cx="393" cy="105" r="8" fill="rgba(136,80,30,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="393" cy="105" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="360" y="102" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Rioja 🇪🇸</text>
+        </g>
+        <!-- Douro -->
+        <g class="rpin" data-region="douro" data-group="europe" onclick="showMapCard('douro')" style="cursor:pointer">
+          <circle cx="380" cy="108" r="8" fill="rgba(80,100,50,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="380" cy="108" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="348" y="105" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Douro 🇵🇹</text>
+        </g>
+        <!-- Napa -->
+        <g class="rpin" data-region="napa" data-group="newworld" onclick="showMapCard('napa')" style="cursor:pointer">
+          <circle cx="155" cy="115" r="8" fill="rgba(136,32,48,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="155" cy="115" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="118" y="112" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Napa 🇺🇸</text>
+        </g>
+        <!-- Mendoza -->
+        <g class="rpin" data-region="mendoza" data-group="newworld" onclick="showMapCard('mendoza')" style="cursor:pointer">
+          <circle cx="207" cy="272" r="8" fill="rgba(136,32,48,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="207" cy="272" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="170" y="269" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Mendoza 🇦🇷</text>
+        </g>
+        <!-- Barossa -->
+        <g class="rpin" data-region="barossa" data-group="newworld" onclick="showMapCard('barossa')" style="cursor:pointer">
+          <circle cx="710" cy="300" r="8" fill="rgba(136,32,48,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="710" cy="300" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="718" y="297" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Barossa 🇦🇺</text>
+        </g>
+        <!-- Marlborough -->
+        <g class="rpin" data-region="marlborough" data-group="newworld" onclick="showMapCard('marlborough')" style="cursor:pointer">
+          <circle cx="762" cy="308" r="8" fill="rgba(136,32,48,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.5"/>
+          <circle cx="762" cy="308" r="4" fill="#c09040" opacity="0.9"/>
+          <text x="770" y="305" fill="#f0d490" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="bold">Marlborough 🇳🇿</text>
+        </g>
+
+        <!-- legend -->
+        <rect x="10" y="400" width="310" height="50" rx="3" fill="rgba(0,0,0,.35)"/>
+        <circle cx="26" cy="413" r="5" fill="rgba(136,32,48,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.2"/>
+        <text x="34" y="416" fill="#bfad98" font-size="8" font-family="JetBrains Mono,monospace">法国</text>
+        <circle cx="26" cy="430" r="5" fill="rgba(50,80,136,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.2"/>
+        <text x="34" y="433" fill="#bfad98" font-size="8" font-family="JetBrains Mono,monospace">德国</text>
+        <circle cx="80" cy="413" r="5" fill="rgba(80,50,136,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.2"/>
+        <text x="88" y="416" fill="#bfad98" font-size="8" font-family="JetBrains Mono,monospace">意大利</text>
+        <circle cx="80" cy="430" r="5" fill="rgba(136,80,30,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.2"/>
+        <text x="88" y="433" fill="#bfad98" font-size="8" font-family="JetBrains Mono,monospace">西班牙</text>
+        <circle cx="148" cy="413" r="5" fill="rgba(80,100,50,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.2"/>
+        <text x="156" y="416" fill="#bfad98" font-size="8" font-family="JetBrains Mono,monospace">葡萄牙</text>
+        <circle cx="148" cy="430" r="5" fill="rgba(136,32,48,.7)" stroke="rgba(200,150,70,.8)" stroke-width="1.2"/>
+        <text x="156" y="433" fill="#bfad98" font-size="8" font-family="JetBrains Mono,monospace">新世界</text>
+        <text x="220" y="413" fill="rgba(192,144,64,.5)" font-size="8" font-family="JetBrains Mono,monospace">● 点击标记查看考点</text>
+      </svg>
+    </div>
   </div>
-  <div class="crow">
-    <input id="cin" placeholder="例如：Barolo和Barbaresco的区别是什么？" onkeydown="if(event.key==='Enter')sendChat()">
-    <button class="btn" id="cbtn" onclick="sendChat()">发送</button>
+
+  <!-- info card -->
+  <div id="map-card" style="display:none;background:rgba(0,0,0,.3);border:1px solid var(--b2);border-radius:var(--r);padding:20px;animation:fu .25s ease">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.35rem;font-style:italic;color:var(--gold2)" id="mc-title"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--dim);margin-top:3px" id="mc-sub"></div>
+      </div>
+      <button onclick="document.getElementById('map-card').style.display='none'" style="background:transparent;border:1px solid var(--b1);color:var(--dim);width:26px;height:26px;cursor:pointer;border-radius:50%;font-size:12px">✕</button>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="mc-tags"></div>
+    <table style="width:100%;border-collapse:collapse" id="mc-kv"></table>
+    <div style="margin-top:12px;font-size:.85rem;line-height:1.75;color:var(--mist);border-top:1px solid var(--b1);padding-top:12px" id="mc-exam"></div>
   </div>
 </div>
 
@@ -359,39 +496,6 @@ select option{background:var(--surf)}
 </div>
 
 <script>
-// ══════════════════════════════════════════════
-// ★ 配置区 CONFIG — 只需修改这里 ★
-// ══════════════════════════════════════════════
-const CONFIG = {
-  // 1. 在 https://console.anthropic.com 生成你的 API Key
-  // 2. 将下面引号内替换为你的 key（格式：sk-ant-api03-...）
-  API_KEY: 'sk-eae9e4d89f7c4df7b27ab266fe7aaaec',
-
-  // 模型（无需修改）
-  MODEL: 'claude-sonnet-4-20250514',
-};
-
-// 统一的 API 调用函数
-async function callClaude(system, userContent, maxTokens = 1000) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': CONFIG.API_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: CONFIG.MODEL,
-      max_tokens: maxTokens,
-      system,
-      messages: [{ role: 'user', content: userContent }],
-    }),
-  });
-  const d = await res.json();
-  if (d.error) throw new Error(d.error.message);
-  return d.content[0].text;
-}
-
 // ══════════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════════
@@ -1173,39 +1277,81 @@ function buildWM(){
 // init first section
 buildGrid(RG,'rg-grid','rg-sheet','rg-fl','rg-en','rg-zh','rg-kv','rg-acc','rg');
 
-// ══ CHAT ══
-let hist=[];
-async function sendChat(){
-  const inp=document.getElementById('cin');
-  const msg=inp.value.trim();if(!msg)return;
-  addMsg('u',msg);inp.value='';
-  const btn=document.getElementById('cbtn');btn.disabled=true;
-  const bbl=addMsg('a','<span class="dots"><span></span><span></span><span></span></span>',true);
-  hist.push({role:'user',content:msg});
-  try{
-    // 多轮对话需要单独 fetch（保持 history）
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':CONFIG.API_KEY,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:CONFIG.MODEL,max_tokens:1000,
-        system:'你是专业WSET Level 3备考导师。中文回答，专业术语保留英文并附中文释义，紧扣考纲，结构清晰，末尾提出1个延伸问题。',
-        messages:hist})});
-    const d=await res.json();
-    if(d.error) throw new Error(d.error.message);
-    const r=d.content[0].text;
-    hist.push({role:'assistant',content:r});
-    bbl.innerHTML=r.replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
-  }catch(e){bbl.innerHTML='连接失败，请稍后重试。';}
-  btn.disabled=false;
-  document.getElementById('cbox').scrollTop=9999;
+// ══ MAP ══
+const MAP_DATA = {
+  bordeaux:{title:'Bordeaux 波尔多',sub:'🇫🇷 France · 温和海洋性气候',tags:['Cab.Sauv','Merlot','1855分级','Sauternes'],
+    kv:[['左岸','砾石土 → Cab.Sauv主导 → 结构紧实，陈年潜力强'],['右岸','黏土/石灰石 → Merlot主导 → 圆润丰满，更早成熟'],['甜白','Sauternes: Sémillon + SB + Botrytis贵腐'],['1855分级','仅Médoc+Haut-Brion，5个等级，至今基本不变']],
+    exam:'【高频考点】土壤-品种对应逻辑（砾石→Cab.Sauv，黏土→Merlot）；Sauternes Botrytis形成需要Ciron河晨雾效应（早潮湿+午干燥）'},
+  burgundy:{title:'Burgundy 勃艮第',sub:'🇫🇷 France · 凉爽大陆性气候',tags:['Pinot Noir','Chardonnay','Grand Cru','地块分级'],
+    kv:[['分级逻辑','等级属于地块（Climat），与酒庄所有者无关'],['四级体系','Regional → Village → Premier Cru → Grand Cru（独立AOC）'],['Côte de Nuits','Pinot Noir圣地，Chambertin / Romanée-Conti'],['Côte de Beaune','顶级Chardonnay，Montrachet / Meursault']],
+    exam:'【高频考点】Grand Cru酒标只标地块名，不标村庄；Premier Cru = 村庄名+1er Cru+地块名（可选）；一块GC可有多个所有者'},
+  champagne:{title:'Champagne 香槟',sub:'🇫🇷 France · 凉爽，接近种植北限',tags:['传统法8步骤','NV','Dosage','酒泥陈年'],
+    kv:[['法定品种','Chardonnay / Pinot Noir / Pinot Meunier'],['NV陈年','法规最少15月带酒泥（顶级常>36月）'],['Vintage陈年','最少36月；只有优秀年份生产'],['甜度陷阱','Extra Dry（12-17 g/L）比 Brut（0-12 g/L）更甜！']],
+    exam:'【高频考点】传统法8步骤（调配→装瓶→二次发酵→酒泥陈年→转瓶→除渣→补液→封瓶）；Extra Dry比Brut更甜是反直觉考点'},
+  rhone:{title:'Rhône Valley 隆河谷',sub:'🇫🇷 France · 北凉南热',tags:['Syrah','Grenache','GSM','Viognier'],
+    kv:[['北隆河','Syrah单品种，黑胡椒/橄榄/紫罗兰；Condrieu = Viognier'],['南隆河','Grenache主导GSM混酿，最多18种品种'],['CdP','Châteauneuf-du-Pape：鹅卵石蓄热，复杂度高'],['Côte-Rôtie','可加≤20% Viognier与Syrah共发酵增香']],
+    exam:'【考点】北隆河Syrah的黑胡椒来自Rotundone（凉爽气候下更多）；GSM各品种贡献：Grenache=果味/酒精，Syrah=颜色/单宁，Mourvèdre=结构/肉感'},
+  alsace:{title:'Alsace 阿尔萨斯',sub:'🇫🇷 France · 法国最干燥产区',tags:['Riesling','Gewurztraminer','VT/SGN','品种标注'],
+    kv:[['特色','以品种名标注酒标（法国少见）；德式细长瓶'],['4高贵品种','Riesling / Gewurztraminer / Pinot Gris / Muscat'],['甜酒等级','VT（晚收）/ SGN（逐粒贵腐精选）'],['气候','Vosges山脉阻挡西风→干燥→成熟度高']],
+    exam:'【考点】Alsace Muscat是干型（其他产区Muscat多甜型）；Gewurztraminer：荔枝+玫瑰+低酸，香气浓≠甜型（常见陷阱）'},
+  mosel:{title:'Mosel 摩泽尔',sub:'🇩🇪 Germany · 板岩陡坡，凉爽',tags:['Riesling','7-9% ABV','Pradikat','TDN汽油香'],
+    kv:[['土壤','蓝色板岩（Slate）导热性好，帮助北方成熟'],['酒精','7-9% ABV，最低的优质Riesling（气候自然结果）'],['Pradikat','Kabinett→Spätlese→Auslese→BA→Eiswein→TBA'],['陈年香','TDN（汽油味）是高质量陈年Riesling的标志，非缺陷']],
+    exam:'【考点】Mosel低酒精是凉爽气候自然结果，非刻意；TDN陈年汽油香是品质标志；Kabinett是最低糖度等级'},
+  tuscany:{title:'Tuscany 托斯卡纳',sub:'🇮🇹 Italy · 地中海气候',tags:['Sangiovese','Brunello','Super Tuscan','DOCG'],
+    kv:[['核心品种','Sangiovese：高酸/高单宁/酸樱桃/番茄/皮革'],['Chianti Classico','Sangiovese≥80%，Gran Selezione最高级'],['Brunello','100% Sangiovese，最少5年陈年，极强陈年潜力'],['Super Tuscans','Cab.Sauv等国际品种→降为IGT但品质极高']],
+    exam:'【考点】Super Tuscans不符合DOC/DOCG规定（用国际品种）→降级IGT；Brunello di Montalcino vs Vino Nobile di Montepulciano易混淆'},
+  piedmont:{title:'Piedmont 皮埃蒙特',sub:'🇮🇹 Italy · 大陆性气候',tags:['Nebbiolo','Barolo','Barbaresco','玫瑰与焦油'],
+    kv:[['颜色悖论','皮薄→颜色浅，但同时高单宁/高酸/高酒精'],['Barolo','100% Nebbiolo，最少38月（18月橡木）'],['Barbaresco','100% Nebbiolo，最少26月，风格稍柔'],['香气','年轻：玫瑰+焦油；陈年：皮革+松露+烟草']],
+    exam:'【高频考点】Nebbiolo颜色悖论：颜色浅≠结构弱；"玫瑰与焦油 Roses and Tar"是Barolo经典描述；Barolo 38月 vs Barbaresco 26月'},
+  rioja:{title:'Rioja 里奥哈',sub:'🇪🇸 Spain · DOCa最高级别',tags:['Tempranillo','Gran Reserva','美/法橡木','三子区'],
+    kv:[['陈年分级','Joven→Crianza(2年/1月桶)→Reserva(3年/1月桶)→Gran Reserva(5年/2月桶)'],['美国橡木','椰子+甜香草+奶油糖（传统Rioja）'],['法国橡木','更精细香料+更多果味（现代Rioja）'],['三子区','Alta（凉爽优雅）/ Alavesa / Oriental（温暖）']],
+    exam:'【考点】Gran Reserva = 最少5年/2年橡木；美国橡木椰子味是传统Rioja识别标志；两种橡木风格酒标均不注明'},
+  douro:{title:'Douro & Port 杜罗河',sub:'🇵🇹 Portugal · 片岩土壤，极端大陆性',tags:['Port','Touriga Nacional','Ruby/Tawny','加强酒原理'],
+    kv:[['Port原理','发酵至约6-9%酒精时加入77% ABV烈酒→中止发酵→保留残糖'],['Ruby Port','不锈钢陈年→保留年轻果香（黑果/巧克力）'],['Tawny Port','小橡木桶氧化陈年→棕色/坚果/太妃糖；标注10/20/30/40年'],['Vintage Port','最优秀年份，瓶中长期陈年20-40年+']],
+    exam:'【考点】Port甜度来自中止发酵（保留天然糖分），不是发酵后加糖；Ruby vs Tawny本质区别是陈年方式（无氧vs氧化）'},
+  napa:{title:'Napa Valley 纳帕谷',sub:'🇺🇸 USA · 温暖，太平洋雾气调节',tags:['Cab.Sauv','山坡vs谷地','AVA','丰满浓郁'],
+    kv:[['谷地','肥沃冲积土→高产→果味圆润丰满，黑醋栗/可可/薄荷'],['山坡','贫瘠土→低产浓缩→单宁更强/矿物感/更高陈年潜力'],['vs波尔多','Napa更果酱感/高酒精/圆润；Bordeaux更含蓄/矿物/结构'],['AVA','仅界定地理范围，不规定品种和工艺']],
+    exam:'【考点】AVA vs AOC：AVA只管地理边界；山坡Cab.Sauv产量低但浓度高，价格通常远超谷地'},
+  mendoza:{title:'Mendoza 门多萨',sub:'🇦🇷 Argentina · 高海拔800-1200m',tags:['Malbec','紫罗兰','高海拔效应','Torrontés'],
+    kv:[['高海拔效应','大日温差→香气保留+高天然酸；UV强→厚皮深色'],['Malbec风味','蓝莓/紫罗兰/黑巧克力，单宁圆润，高酒精'],['vs法国Cahors','Cahors（黑色酒）：高单宁粗涩，需陈年；Mendoza：圆润果香，易亲近'],['Torrontés','花香极浓（玫瑰/荔枝）但干型低酸——香气≠甜度！']],
+    exam:'【考点】Torrontés香气极浓≠甜型（常见陷阱）；高海拔大日温差是Mendoza Malbec高酸的根本原因'},
+  barossa:{title:'Barossa Valley 巴罗萨谷',sub:'🇦🇺 Australia · 温暖，南澳大利亚',tags:['Shiraz','Grenache老藤','浓郁','Penfolds'],
+    kv:[['气候','温暖→浓郁Shiraz（果酱/巧克力/甜辛料）'],['vs北隆河Syrah','Barossa：丰满/高酒精/圆润；Rhône：黑胡椒/优雅/高酸'],['老藤','世界最老Grenache老藤之一'],['代表酒庄','Penfolds Grange（标志性澳大利亚Shiraz）']],
+    exam:'【考点】Shiraz vs Syrah = 同品种，气候决定风格；澳大利亚GI系统不规定品种和工艺（与欧洲AOC不同）'},
+  marlborough:{title:'Marlborough 马尔堡',sub:'🇳🇿 New Zealand · 全球最著名SB产区',tags:['Sauvignon Blanc','百香果/青椒','不锈钢','高酸'],
+    kv:[['风格','百香果/芒果/青椒/接骨木花；高酸，强烈，全球最易识别SB'],['酿造','不锈钢发酵，不进行MLF（保留清脆果香）'],['vs Sancerre','Sancerre：燧石矿物/草本，精致；Marlborough：热带水果，浓郁'],['Central Otago','同国的凉爽产区，世界级Pinot Noir']],
+    exam:'【考点】Marlborough SB是WSET盲品最易识别风格之一；两者均不MLF，差异来自气候和土壤，非酿造方式'},
+};
+
+function showMapCard(region) {
+  const d = MAP_DATA[region];
+  if (!d) return;
+  document.getElementById('mc-title').textContent = d.title;
+  document.getElementById('mc-sub').textContent = d.sub;
+  document.getElementById('mc-tags').innerHTML = d.tags.map(t=>`<span class="tag-g">${t}</span>`).join('');
+  document.getElementById('mc-kv').innerHTML = d.kv.map(([k,v])=>`
+    <tr style="border-bottom:1px solid var(--b1)">
+      <td style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.12em;color:var(--gold);opacity:.7;padding:8px 12px 8px 0;white-space:nowrap;vertical-align:top">${k}</td>
+      <td style="font-size:.87rem;line-height:1.7;color:var(--mist);padding:8px 0">${v}</td>
+    </tr>`).join('');
+  document.getElementById('mc-exam').innerHTML = `<span style="color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:.68rem">EXAM</span><br>${d.exam}`;
+  const card = document.getElementById('map-card');
+  card.style.display = 'block';
+  setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
 }
-function addMsg(role,html,raw=false){
-  const box=document.getElementById('cbox');
-  const d=document.createElement('div');d.className=`msg ${role}`;
-  d.innerHTML=`<div class="av">${role==='u'?'👤':'🍷'}</div><div class="bbl">${html}</div>`;
-  box.appendChild(d);box.scrollTop=9999;
-  return d.querySelector('.bbl');
+
+function filterMap(group, btn) {
+  document.querySelectorAll('.map-chip').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.rpin').forEach(el=>{
+    if (group === 'all') { el.classList.remove('hidden'); return; }
+    const g = el.dataset.group;
+    const show = (group === 'france' && g === 'france') ||
+                 (group === 'europe' && g === 'europe') ||
+                 (group === 'newworld' && g === 'newworld');
+    el.classList.toggle('hidden', !show);
+  });
 }
-function ask(q){document.getElementById('cin').value=q;sendChat();}
 
 // ══ FLASHCARD ══
 const CARDS={
@@ -1356,40 +1502,111 @@ function updateQMeta(){
   document.getElementById('qpb').style.width=`${(qIdx/(qPool.length||1))*100}%`;
 }
 
-// ══ BLIND ══
+// ══ BLIND — 本地推断引擎（无需API）══
 function gm(id){return[...document.getElementById(id).selectedOptions].map(o=>o.value).filter(v=>v);}
-async function runBlind(){
-  const col=document.getElementById('bt-col').value;
-  const ar=gm('bt-ar');const st=gm('bt-st');const notes=document.getElementById('bt-notes').value.trim();
-  if(!col&&!ar.length&&!st.length){alert('请至少选择颜色或香气');return;}
-  const btn=document.getElementById('btbtn');btn.disabled=true;btn.textContent='🔍 推断中…';
-  document.getElementById('btres').classList.remove('on');
-  const desc=`颜色：${col||'未指定'}\n香气强度：${document.getElementById('bt-int').value||'未指定'}\n主要香气：${ar.join('、')||'未指定'}\n口感结构：${st.join('、')||'未指定'}\n附加说明：${notes||'无'}`;
-  try{
-    const reply = await callClaude(
-      '你是WSET Level 3盲品专家。只输出JSON，不含任何其他文字：{"top_grape":"最可能品种（英文+中文）","top_region":"最可能产区","confidence":"高/中/低","alternatives":["备选1","备选2"],"reasoning":"中文推断逻辑，200字以内，解释每个特征如何指向此结论"}',
-      desc, 800
-    );
-    const j=JSON.parse(reply.replace(/```json|```/g,'').trim());
-    document.getElementById('btrt').textContent=`${j.top_grape} · ${j.top_region}`;
-    document.getElementById('bttags').innerHTML=
-      `<span class="tag">${j.top_grape}</span><span class="tag">${j.top_region}</span><span class="tag">把握：${j.confidence}</span>`+
-      j.alternatives.map(a=>`<span class="tag-g">备选：${a}</span>`).join('');
-    document.getElementById('btbody').textContent=j.reasoning;
-    document.getElementById('btres').classList.add('on');
-  }catch(e){
-    document.getElementById('btrt').textContent='推断失败';
-    document.getElementById('btbody').textContent='请检查网络后重试。';
-    document.getElementById('btres').classList.add('on');
+
+// 推断规则库
+const BLIND_RULES = [
+  // ── 白葡萄酒 ──
+  {grape:'Riesling 雷司令',region:'Mosel / Alsace / Clare Valley',confidence:'高',
+   match(c,ar,st,n){return c.includes('柠檬')||c.includes('Lemon')||ar.includes('柑橘 Citrus')&&st.includes('高酸 High Acidity')&&(st.includes('中低酒精 Low-Med Alcohol')||n.includes('矿物')||n.includes('汽油'));},
+   reason:'柠檬黄色 + 高酸 + 中低酒精 → 强烈指向凉爽气候高酸白葡萄品种。Riesling是最典型选择：凉爽气候保留极高酸度，Mosel酒精仅7-9%；若有矿物感或汽油陈年香则更确定。'},
+  {grape:'Sauvignon Blanc 长相思',region:'Marlborough / Sancerre',confidence:'高',
+   match(c,ar,st,n){return (ar.includes('草本/青椒 Herbaceous')||ar.includes('热带水果 Tropical Fruit'))&&st.includes('高酸 High Acidity')&&!st.includes('高单宁 High Tannin');},
+   reason:'草本/青椒或热带水果 + 高酸 + 无单宁 → SB的经典指纹。Marlborough：百香果+青椒+强烈；Sancerre：燧石矿物+草本+精致。两者均不进行MLF。'},
+  {grape:'Chardonnay 霞多丽',region:'Chablis / Côte de Beaune / Napa',confidence:'中',
+   match(c,ar,st,n){return (c.includes('金黄')||c.includes('Gold'))&&(ar.includes('核果 Stone Fruit')||n.includes('奶油')||n.includes('橡木'))&&!st.includes('高单宁 High Tannin');},
+   reason:'金黄色 + 核果/奶油/橡木香气 + 无单宁 → 典型桶发酵Chardonnay。Chablis无橡木更清瘦；Côte de Beaune带桶有奶油榛子；Napa更丰满高酒精。'},
+  {grape:'Chenin Blanc 白诗南',region:'Vouvray / Savennières (Loire)',confidence:'中',
+   match(c,ar,st,n){return st.includes('高酸 High Acidity')&&(st.includes('明显甜度 Sweetness')||n.includes('蜂蜡')||n.includes('蜂蜜'))&&!ar.includes('草本/青椒 Herbaceous');},
+   reason:'高酸 + 甜度/蜂蜡感 → Chenin Blanc的独特组合。高酸是其能跨越干型到极甜所有风格的基础，即使甜型也保持清爽感。Loire Valley最典型。'},
+  {grape:'Gewurztraminer 琼瑶浆',region:'Alsace',confidence:'高',
+   match(c,ar,st,n){return ar.includes('花香 Floral')&&st.includes('低酸 Low Acidity')&&(n.includes('荔枝')||n.includes('玫瑰'));},
+   reason:'浓烈花香 + 低酸 → 强烈指向Gewurztraminer。荔枝/玫瑰/土耳其软糖是标志性香气，天然低酸，Alsace最典型。注意：浓花香≠甜型，Alsace通常酿干型。'},
+  {grape:'Viognier 维欧尼',region:'Condrieu / Northern Rhône',confidence:'中',
+   match(c,ar,st,n){return ar.includes('花香 Floral')&&(ar.includes('核果 Stone Fruit'))&&st.includes('低酸 Low Acidity')&&st.includes('丰满酒体 Full Body');},
+   reason:'浓烈花香（金银花/杏桃）+ 核果 + 低酸 + 丰满酒体 → Viognier特征组合。与Gewurztraminer区别：核果感更多，荔枝/玫瑰感较少。Condrieu是标杆产区。'},
+
+  // ── 红葡萄酒 ──
+  {grape:'Pinot Noir 黑皮诺',region:'Burgundy / Oregon / Central Otago',confidence:'高',
+   match(c,ar,st,n){return (c.includes('浅红宝石')||c.includes('Pale Ruby'))&&ar.includes('红色浆果 Red Berry')&&st.includes('高酸 High Acidity')&&(st.includes('低单宁 Low Tannin')||st.includes('中单宁 Medium Tannin'))&&st.includes('轻盈酒体 Light Body');},
+   reason:'浅红宝石色 + 红色浆果 + 高酸 + 低/中单宁 + 轻盈酒体 → Pinot Noir的经典画像。皮薄→颜色浅/低单宁；凉爽气候保留高酸。勃艮第加蘑菇/腐叶感则更确定。'},
+  {grape:'Grenache 歌海娜',region:'Châteauneuf-du-Pape / Priorat',confidence:'高',
+   match(c,ar,st,n){return ar.includes('红色浆果 Red Berry')&&st.includes('高酒精 High Alcohol')&&st.includes('低单宁 Low Tannin')&&(ar.includes('辛香料 Spice')||n.includes('白胡椒')||n.includes('甘草'));},
+   reason:'红色浆果 + 高酒精 + 低单宁 + 白胡椒/甘草 → Grenache的结构特征（高糖天然高酒精，皮薄低单宁）。南隆河/Priorat最典型。'},
+  {grape:'Syrah / Shiraz 西拉',region:'Northern Rhône / Barossa Valley',confidence:'高',
+   match(c,ar,st,n){return (ar.includes('黑色浆果 Black Fruit')||ar.includes('烟熏/橄榄 Smoky/Olive'))&&(ar.includes('黑胡椒 Black Pepper')||n.includes('黑胡椒'))&&!st.includes('低单宁 Low Tannin');},
+   reason:'黑胡椒 + 黑色浆果/烟熏 → Syrah最标志性特征（Rotundone产生黑胡椒）。北隆河：中等酒体/优雅；Barossa：丰满/高酒精/果酱感。两者风格差异大但品种特征相同。'},
+  {grape:'Cabernet Sauvignon 赤霞珠',region:'Bordeaux Left Bank / Napa Valley',confidence:'高',
+   match(c,ar,st,n){return (c.includes('深红宝石')||c.includes('Deep Ruby'))&&ar.includes('黑色浆果 Black Fruit')&&st.includes('高单宁 High Tannin')&&st.includes('高酸 High Acidity')&&st.includes('高酒精 High Alcohol');},
+   reason:'深色 + 黑色浆果 + 高单宁/高酸/高酒精 → 赤霞珠的"三高"结构。厚皮品种，深色，需充足热量成熟。波尔多更含蓄矿物；Napa更果酱丰满。'},
+  {grape:'Merlot 梅洛',region:'Bordeaux Right Bank / Pomerol',confidence:'中',
+   match(c,ar,st,n){return ar.includes('黑色浆果 Black Fruit')&&st.includes('中单宁 Medium Tannin')&&st.includes('中酸 Medium Acidity')&&st.includes('丰满酒体 Full Body');},
+   reason:'黑色浆果（李子/黑樱桃）+ 中等单宁/酸度 + 丰满酒体 → Merlot比Cab.Sauv更柔和。波尔多右岸黏土土壤保水→Merlot天然选择。'},
+  {grape:'Nebbiolo 内比奥罗',region:'Barolo / Barbaresco (Piedmont)',confidence:'高',
+   match(c,ar,st,n){return (c.includes('石榴红')||c.includes('Garnet')||c.includes('砖红'))&&st.includes('高单宁 High Tannin')&&st.includes('高酸 High Acidity')&&(ar.includes('花香 Floral')||n.includes('玫瑰')||n.includes('焦油'));},
+   reason:'石榴红/砖红色（浅）+ 高单宁/高酸 + 玫瑰/焦油 → Nebbiolo的经典悖论：颜色浅但结构极强。"玫瑰与焦油"是Barolo标志性描述。这种颜色浅≠结构弱的反差是高频考点。'},
+  {grape:'Tempranillo 丹魄',region:'Rioja / Ribera del Duero',confidence:'中',
+   match(c,ar,st,n){return ar.includes('红色浆果 Red Berry')&&(ar.includes('橡木/香草 Oak/Vanilla')||n.includes('香草')||n.includes('椰子'))&&st.includes('中单宁 Medium Tannin');},
+   reason:'红色浆果 + 橡木香草/椰子（美国橡木特征）+ 中等单宁 → Tempranillo + 传统Rioja美国橡木熟化。椰子味是最直接的美国橡木识别标志。'},
+  {grape:'Malbec 马尔贝克',region:'Mendoza (Argentina)',confidence:'高',
+   match(c,ar,st,n){return (c.includes('深红宝石')||c.includes('Deep Ruby'))&&ar.includes('黑色浆果 Black Fruit')&&st.includes('高酒精 High Alcohol')&&st.includes('中单宁 Medium Tannin')&&(n.includes('紫罗兰')||n.includes('蓝莓'));},
+   reason:'深色 + 黑色浆果(蓝莓/紫罗兰) + 高酒精 + 成熟圆润单宁 → 阿根廷Malbec。高海拔大日温差产生的高酒精+保留酸度是Mendoza的标志。'},
+  {grape:'Sangiovese 桑娇维塞',region:'Chianti Classico / Brunello (Tuscany)',confidence:'中',
+   match(c,ar,st,n){return ar.includes('红色浆果 Red Berry')&&st.includes('高酸 High Acidity')&&st.includes('高单宁 High Tannin')&&(n.includes('樱桃')||n.includes('番茄')||n.includes('皮革'));},
+   reason:'红色浆果（酸樱桃）+ 高酸/高单宁 + 皮革/番茄感 → Sangiovese。高酸+高单宁是意大利红葡萄的典型组合；番茄/皮革是品种识别香气。'},
+];
+
+function runBlind() {
+  const col = document.getElementById('bt-col').value;
+  const intensity = document.getElementById('bt-int').value;
+  const ar = gm('bt-ar');
+  const st = gm('bt-st');
+  const notes = document.getElementById('bt-notes').value.trim().toLowerCase();
+
+  if (!col && !ar.length && !st.length) { alert('请至少选择颜色或香气特征'); return; }
+
+  // 判断红/白/桃红
+  const isRed = col.includes('红宝石')||col.includes('Ruby')||col.includes('石榴')||col.includes('Garnet')||col.includes('砖红')||col.includes('Tawny');
+  const isWhite = col.includes('柠檬')||col.includes('Lemon')||col.includes('金黄')||col.includes('Gold')||col.includes('琥珀')||col.includes('Amber');
+  const isRose = col.includes('粉红')||col.includes('Pink')||col.includes('Salmon');
+
+  // 匹配得分
+  const scores = BLIND_RULES.map(rule => {
+    let score = 0;
+    if (rule.match(col, ar, st, notes)) score += 10;
+    // 额外细节匹配
+    if (isRed && (rule.grape.includes('Noir')||rule.grape.includes('Syrah')||rule.grape.includes('Sauv')||rule.grape.includes('Nebb')||rule.grape.includes('Temp')||rule.grape.includes('Malbec')||rule.grape.includes('Merlot')||rule.grape.includes('Gren')||rule.grape.includes('Sangio'))) score += 2;
+    if (isWhite && (rule.grape.includes('Chardonnay')||rule.grape.includes('Riesling')||rule.grape.includes('Sauv')||rule.grape.includes('Chenin')||rule.grape.includes('Viog')||rule.grape.includes('Gewurz'))) score += 2;
+    return { rule, score };
+  }).filter(x => x.score > 0).sort((a,b) => b.score - a.score);
+
+  const btn = document.getElementById('btbtn');
+  const res = document.getElementById('btres');
+
+  if (!scores.length) {
+    document.getElementById('btrt').textContent = '特征不足，无法推断';
+    document.getElementById('bttags').innerHTML = '';
+    document.getElementById('btbody').textContent = '请选择更多特征（至少包含颜色 + 1个香气或结构特征）来获得推断结果。';
+    res.classList.add('on'); return;
   }
-  btn.disabled=false;btn.textContent='🔍 推断品种与产区';
+
+  const top = scores[0].rule;
+  const alts = scores.slice(1,3).map(x => x.rule.grape.split(' ')[0]);
+
+  document.getElementById('btrt').textContent = `${top.grape} · ${top.region}`;
+  document.getElementById('bttags').innerHTML =
+    `<span class="tag">${top.grape}</span>` +
+    `<span class="tag">${top.region}</span>` +
+    `<span class="tag">把握：${top.confidence}</span>` +
+    alts.map(a=>`<span class="tag-g">备选：${a}</span>`).join('');
+  document.getElementById('btbody').innerHTML =
+    `<strong style="color:var(--cream)">推断逻辑：</strong><br>${top.reason}` +
+    (alts.length ? `<br><br><span style="color:var(--dim);font-size:.82rem">备选原因：选择了部分但不完全符合主推断的特征，${alts.join('、')}也有可能，需结合更多细节排除。</span>` : '');
+  res.classList.add('on');
+  setTimeout(()=>res.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
 }
-// ── 启动检查 ──────────────────────────────────
-(function checkConfig() {
-  if (CONFIG.API_KEY === 'YOUR_API_KEY_HERE' || !CONFIG.API_KEY) {
-    document.getElementById('api-banner').style.display = 'block';
-  }
-})();
 </script>
+
 </body>
 </html>
